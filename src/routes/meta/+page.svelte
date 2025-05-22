@@ -7,6 +7,7 @@
         offset,
     } from '@floating-ui/dom';
     import Bar from '$lib/Bar.svelte';
+    import Scrolly from "svelte-scrolly";
     
     
     let data = [];
@@ -195,34 +196,50 @@
         <dd>{d3.groups(filteredData, d => d.commit).length}</dd>
         </dl>	
     </section>
-    
-    <h3>Commits by time and day</h3>
-    
-    <svg viewBox="0 0 {width} {height}">
-        <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
-        <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
-    
-        <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
-        <g class="dots">
-            {#each filteredCommits as commit, index (commit.id)}
-                <circle
-                    class:selected={ clickedCommits.includes(commit) }
-                    on:mouseenter={evt => dotInteraction(index, evt)}
-                    on:mouseleave={evt => dotInteraction(index, evt)}
-                    on:click={ evt => dotInteraction(index, evt) }
-                    cx={ xScale(commit.datetime) }
-                    cy={ yScale(commit.hourFrac) }
-                    r={ rScale(commit.totalLines) }
-                    fill="steelblue"
-                    fill-opacity="0.5"
-                    style="--r: {rScale(commit.totalLines)};"
-                />
-            {/each}
-        </g>		
-    </svg>
-    
-    <Bar data={languageBreakdown} width={width} />
-    
+<Scrolly bind:progress={commitProgress}>
+    {#each commits as commit, index }
+        <p>
+            On {commit.datetime.toLocaleString("en", {dateStyle: "full", timeStyle: "short"})},
+            {index === 0 
+                ? "I set forth on my very first commit, beginning a magical journey of code. You can view it "
+                : "I added another commit. See it "}
+            <a href="{commit.url}" target="_blank">
+                {index === 0 ? "here" : "here"}
+            </a>.
+            This update transformed {commit.totalLines} lines across { d3.rollups(commit.lines, D => D.length, d => d.file).length } files.
+            With every commit, our project grows.
+        </p>
+    {/each}
+
+    <svelte:fragment slot="viz">
+        <h3>Commits by time and day</h3>
+
+        <svg viewBox="0 0 {width} {height}">
+            <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
+            <g transform="translate({usableArea.left}, 0)" bind:this={yAxis} />
+        
+            <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
+            <g class="dots">
+                {#each filteredCommits as commit, index (commit.id)}
+                    <circle
+                        class:selected={ clickedCommits.includes(commit) }
+                        on:mouseenter={evt => dotInteraction(index, evt)}
+                        on:mouseleave={evt => dotInteraction(index, evt)}
+                        on:click={ evt => dotInteraction(index, evt) }
+                        cx={ xScale(commit.datetime) }
+                        cy={ yScale(commit.hourFrac) }
+                        r={ rScale(commit.totalLines) }
+                        fill="steelblue"
+                        fill-opacity="0.5"
+                        style="--r: {rScale(commit.totalLines)};"
+                    />
+                {/each}
+            </g>		
+        </svg>
+        
+        <Bar data={languageBreakdown} width={width} />
+    </svelte:fragment>
+</Scrolly>
     
     <style>
     dl{
