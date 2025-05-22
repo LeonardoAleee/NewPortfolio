@@ -8,6 +8,7 @@
     } from '@floating-ui/dom';
     import Bar from '$lib/Bar.svelte';
     import Scrolly from "svelte-scrolly";
+    import FileLines from "$lib/FileLines.svelte";
     
     
     let data = [];
@@ -185,6 +186,7 @@
         </div>
         <time class="time-label">{commitMaxTime.toLocaleString()}</time>
     </div>
+    <FileLines lines={filteredData} width={width}/>
     
     <section>
         <dl class="stats">
