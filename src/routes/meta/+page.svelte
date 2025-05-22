@@ -239,7 +239,7 @@
         
         <Bar data={languageBreakdown} width={width} />
     </svelte:fragment>
-</Scrolly>
+</Scrolly> 
     
     <style>
     dl{
